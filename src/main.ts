@@ -9,11 +9,13 @@ const config: Phaser.Types.Core.GameConfig = {
   width: CANVAS_WIDTH,
   height: CANVAS_HEIGHT,
   backgroundColor: '#0a0a08',
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+  },
   physics: {
     default: 'arcade',
-    arcade: {
-      debug: false,
-    },
+    arcade: { debug: false },
   },
   scene: [BootScene, GameScene, HUDScene],
 }

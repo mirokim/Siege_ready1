@@ -1,6 +1,6 @@
 import Phaser from 'phaser'
 import { Infantry } from '../entities/Infantry'
-import { LANES, ZONE_ENEMY_BOTTOM, WAVE_INTERVAL_MS } from '../constants'
+import { CANVAS_WIDTH, ZONE_ENEMY_BOTTOM, WAVE_INTERVAL_MS } from '../constants'
 
 export class WaveManager {
   private minions: Infantry[] = []
@@ -13,7 +13,7 @@ export class WaveManager {
     onMinionReachBase?: (dmg: number) => void,
   ) {
     this.onMinionReachBase = onMinionReachBase
-    this.waveTimer = 3000  // 3초 후 첫 웨이브
+    this.waveTimer = 4000  // 4초 후 첫 웨이브
   }
 
   update(delta: number) {
@@ -30,7 +30,6 @@ export class WaveManager {
       }
     }
 
-    // 죽거나 기지 도달한 미니언 제거
     this.minions = this.minions.filter(m => {
       if (m.isDead()) {
         m.destroy()
@@ -43,25 +42,28 @@ export class WaveManager {
   private spawnWave() {
     this.waveNumber++
 
-    // 스테이지 초기: 랜덤 레인 2개에 보병 분대 3기씩
-    const count = Math.min(3 + this.waveNumber, 6)
-    const lanesUsed = this.waveNumber % 2 === 0
-      ? [LANES[0], LANES[2]]
-      : [LANES[1]]
+    // 웨이브당 1~3개 그룹, 각 그룹은 맵 전체 너비에서 완전 랜덤 X 선택
+    const groupCount = 1 + Math.floor(Math.random() * 3)
+    const countPerGroup = Math.min(2 + Math.floor(this.waveNumber / 2), 5)
 
-    for (const laneX of lanesUsed) {
-      for (let i = 0; i < count; i++) {
-        const spawnX = laneX + (Math.random() - 0.5) * 40
-        const spawnY = ZONE_ENEMY_BOTTOM + 20 + i * 24
-        const m = new Infantry(this.scene, spawnX, spawnY)
-        this.minions.push(m)
+    for (let g = 0; g < groupCount; g++) {
+      // 그룹 X: 양끝 80px 제외한 전체 너비에서 랜덤
+      const baseX = 80 + Math.random() * (CANVAS_WIDTH - 160)
+
+      for (let i = 0; i < countPerGroup; i++) {
+        // 그룹 내 개체 간격: 최대 ±50px 분산
+        const spawnX = Phaser.Math.Clamp(
+          baseX + (Math.random() - 0.5) * 100,
+          40,
+          CANVAS_WIDTH - 40,
+        )
+        // Y: NML 시작점에서 약간 들어온 위치부터 그룹 간격
+        const spawnY = ZONE_ENEMY_BOTTOM + 20 + i * 20
+        this.minions.push(new Infantry(this.scene, spawnX, spawnY))
       }
     }
   }
 
-  /**
-   * 착탄 좌표로 미니언에 스플래시 데미지
-   */
   applySplashDamage(hitX: number, hitY: number, splashRadius: number, damage: number) {
     for (const m of this.minions) {
       if (m.getSplashHitCheck(hitX, hitY, splashRadius)) {

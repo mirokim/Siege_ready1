@@ -1,52 +1,52 @@
 // ─── 화면 / 맵 ────────────────────────────────────────────────────────────────
-export const CANVAS_WIDTH  = 1280
-export const CANVAS_HEIGHT = 720
+export const CANVAS_WIDTH  = 1920
+export const CANVAS_HEIGHT = 1080
 export const UNIT_SIZE     = 32   // 1칸 = 32px
 
 // ─── 구역 경계 (y 픽셀 기준) ──────────────────────────────────────────────────
 export const ZONE_ENEMY_TOP    = 0
-export const ZONE_ENEMY_BOTTOM = 240   // 적 구역 y 0~240
-export const ZONE_NML_BOTTOM   = 400   // No Man's Land y 240~400
-export const ZONE_PLAYER_TOP   = 400   // 플레이어 구역 y 400~720
-export const BASE_Y            = 700   // 플레이어 기지 y
+export const ZONE_ENEMY_BOTTOM = 360   // 적 구역 y 0~360
+export const ZONE_NML_BOTTOM   = 600   // No Man's Land y 360~600
+export const ZONE_PLAYER_TOP   = 600   // 플레이어 구역 y 600~1080
+export const BASE_Y            = 1050  // 플레이어 기지 y
 
 // ─── 플레이어 SPG ─────────────────────────────────────────────────────────────
-export const PLAYER_SPEED        = 160   // px/s (IDLE→MOVING)
+export const PLAYER_SPEED        = 200   // px/s — 넓어진 맵 반영
 export const PLAYER_HP           = 100
-export const PLAYER_DEPLOY_TIME  = 3.0   // 방열 시간 (초)
-export const PLAYER_UNDEPLOY_TIME = 2.0  // 방열 해제 시간 (초)
-export const PLAYER_RELOAD_TIME  = 4.0   // 재장전 시간 (초)
+export const PLAYER_DEPLOY_TIME  = 3.0
+export const PLAYER_UNDEPLOY_TIME = 2.0
+export const PLAYER_RELOAD_TIME  = 4.0
 export const PLAYER_AMMO_MAX     = 20
 
 // ─── 적 SPG ───────────────────────────────────────────────────────────────────
 export const ENEMY_HP            = 150
 export const ENEMY_DEPLOY_TIME   = 3.5
 export const ENEMY_AIM_TIME      = 2.0
-export const ENEMY_RELOAD_TIME   = 5.0   // 플레이어(4s)보다 느림 — 약점
+export const ENEMY_RELOAD_TIME   = 5.0
 export const ENEMY_MOVE_SPEED    = 120
-export const ENEMY_AIM_SPREAD    = UNIT_SIZE * 2  // 조준 오차 ±2칸
+// 조준 오차: ±10칸 (320px) → 적이 자주 빗나감
+export const ENEMY_AIM_SPREAD    = UNIT_SIZE * 10
 
 // ─── 포격 ─────────────────────────────────────────────────────────────────────
-export const PROJECTILE_SPEED    = 600   // px/s (시각적 이동)
-export const SPLASH_RADIUS       = UNIT_SIZE * 1.5  // 기본 스플래시 (3×3칸 근사)
+export const PROJECTILE_SPEED    = 700
+export const SPLASH_RADIUS       = UNIT_SIZE * 1.5
 export const PROJECTILE_DAMAGE   = 50
 export const MINION_PROJECTILE_DAMAGE = 30
 
 // 사거리별 비행 시간 (GDD §5-3)
 export function getFlightTime(distanceUnits: number): number {
-  if (distanceUnits < 7)  return 0      // 즉시
-  if (distanceUnits < 16) return 1000   // 1초 (ms)
-  return 2000                            // 2초
+  if (distanceUnits < 7)  return 0
+  if (distanceUnits < 16) return 1000
+  return 2000
 }
 
 // ─── 잔향(Echo) 시스템 ────────────────────────────────────────────────────────
-export const ECHO_DURATION_MS    = 5000  // 단계별 지속 시간 (강/중/약 각 5초)
+export const ECHO_DURATION_MS    = 5000
 export const ECHO_PHASES         = 3
-// 거리별 잔향 크기 (GDD §5-4)
 export function getEchoSize(distanceUnits: number): number {
-  if (distanceUnits <= 7)  return 0   // 잔향 없음
-  if (distanceUnits <= 15) return 1   // 기본
-  return 2                             // 큰 잔향
+  if (distanceUnits <= 7)  return 0
+  if (distanceUnits <= 15) return 1
+  return 2
 }
 
 // ─── 기지 HP ──────────────────────────────────────────────────────────────────
@@ -54,22 +54,22 @@ export const BASE_HP_MAX         = 100
 
 // ─── 미니언 ───────────────────────────────────────────────────────────────────
 export const INFANTRY_HP         = 30
-export const INFANTRY_SPEED      = 70   // px/s
-export const INFANTRY_BASE_DMG   = 5    // 기지 도달 시 피해
+export const INFANTRY_SPEED      = 40   // px/s — 느리게 (기존 70)
+export const INFANTRY_BASE_DMG   = 5
 
 // ─── 웨이브 ───────────────────────────────────────────────────────────────────
-export const WAVE_INTERVAL_MS    = 8000  // 웨이브 간격
+export const WAVE_INTERVAL_MS    = 10000  // 10초 간격 (기존 8초)
 
 // ─── 페이즈 ───────────────────────────────────────────────────────────────────
-export const SCOUT_WAVE_COUNT    = 3     // 정찰 페이즈 웨이브 수
-export const SCOUT_DURATION_MS   = 60000 // 정찰 페이즈 최대 시간 (60초)
+export const SCOUT_WAVE_COUNT    = 3
+export const SCOUT_DURATION_MS   = 60000
 
 // ─── 색상 팔레트 ──────────────────────────────────────────────────────────────
 export const COLOR = {
   GROUND:         0x3d3d2e,
   NML:            0x2a2a1e,
   ENEMY_ZONE:     0x1a1a12,
-  FOG:            0x0d0d08,
+  FOG:            0x050504,
   PLAYER_SPG:     0x8fbc8f,
   ENEMY_SPG:      0xbc8f8f,
   PROJECTILE:     0xffe066,
@@ -86,11 +86,15 @@ export const COLOR = {
   HP_HIGH:        0x44bb44,
   HP_LOW:         0xbb4444,
   AMMO:           0xaaaaff,
+  TERRAIN_COVER:  0x4a5240,
+  TERRAIN_ROCK:   0x3a3a2a,
 }
 
-// ─── 레인 X 위치 (No Man's Land 미니언 스폰) ─────────────────────────────────
+// ─── 레인 — 더 이상 고정 레인 사용 안 함, WaveManager가 랜덤 처리 ─────────────
 export const LANES = [
-  CANVAS_WIDTH * 0.25,
+  CANVAS_WIDTH * 0.20,
+  CANVAS_WIDTH * 0.35,
   CANVAS_WIDTH * 0.50,
-  CANVAS_WIDTH * 0.75,
+  CANVAS_WIDTH * 0.65,
+  CANVAS_WIDTH * 0.80,
 ]

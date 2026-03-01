@@ -2,6 +2,7 @@ import Phaser from 'phaser'
 import {
   CANVAS_WIDTH, CANVAS_HEIGHT, PLAYER_HP, BASE_HP_MAX, PLAYER_AMMO_MAX,
   COLOR, ENEMY_HP,
+  ZONE_ENEMY_BOTTOM, ZONE_NML_BOTTOM, BASE_Y,
 } from '../constants'
 import { PlayerState } from '../entities/PlayerSPG'
 import { GamePhase } from '../systems/PhaseManager'
@@ -84,14 +85,13 @@ export class HUDScene extends Phaser.Scene {
     this.texts['phase'].setText(d.phase === GamePhase.SCOUT ? '[ 정찰 페이즈 ]' : '[ 대결 페이즈 ]')
     this.texts['wave'].setText(`웨이브 ${d.waveNumber}`)
 
-    // ── 구역 경계선 표시 ─────────────────────────────────────────
+    // ── 구역 경계선 표시 (상수 기반) ─────────────────────────────
     this.gfx.lineStyle(1, 0x444433, 0.5)
-    this.gfx.strokeLineShape(new Phaser.Geom.Line(0, 240, CANVAS_WIDTH, 240))
-    this.gfx.strokeLineShape(new Phaser.Geom.Line(0, 400, CANVAS_WIDTH, 400))
+    this.gfx.strokeLineShape(new Phaser.Geom.Line(0, ZONE_ENEMY_BOTTOM, CANVAS_WIDTH, ZONE_ENEMY_BOTTOM))
+    this.gfx.strokeLineShape(new Phaser.Geom.Line(0, ZONE_NML_BOTTOM, CANVAS_WIDTH, ZONE_NML_BOTTOM))
     // 기지 선
     this.gfx.lineStyle(2, COLOR.BASE_LINE, 0.6)
-    this.gfx.strokeLineShape(new Phaser.Geom.Line(0, 700, CANVAS_WIDTH, 700))
-    // 구역 레이블 — Text 오브젝트로 GameScene에서 처리
+    this.gfx.strokeLineShape(new Phaser.Geom.Line(0, BASE_Y, CANVAS_WIDTH, BASE_Y))
   }
 
   private drawBar(x: number, y: number, w: number, h: number, ratio: number, color: number) {

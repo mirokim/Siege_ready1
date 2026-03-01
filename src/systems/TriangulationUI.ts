@@ -23,9 +23,9 @@ export class TriangulationUI {
 
   constructor(private scene: Phaser.Scene) {
     this.linesGfx = scene.add.graphics()
-    this.linesGfx.setDepth(40)
+    this.linesGfx.setDepth(56)  // 안개(50) 위
     this.arrowGfx = scene.add.graphics()
-    this.arrowGfx.setDepth(60)
+    this.arrowGfx.setDepth(65)  // 안개 + 잔향 위
   }
 
   /**

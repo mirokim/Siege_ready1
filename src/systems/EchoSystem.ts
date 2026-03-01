@@ -22,7 +22,7 @@ export class EchoSystem {
 
   constructor(scene: Phaser.Scene) {
     this.gfx = scene.add.graphics()
-    this.gfx.setDepth(30)
+    this.gfx.setDepth(55)  // 안개(50) 위에 렌더링 — 적 구역에서도 잔향 보임
   }
 
   /**
