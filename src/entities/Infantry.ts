@@ -1,12 +1,10 @@
 import Phaser from 'phaser'
-import {
-  INFANTRY_HP, INFANTRY_SPEED, INFANTRY_BASE_DMG,
-  BASE_Y, COLOR, UNIT_SIZE,
-} from '../constants'
+import { INFANTRY_HP, INFANTRY_SPEED, INFANTRY_BASE_DMG, BASE_Y, COLOR } from '../constants'
+import { w2s, drawIsoBox, isoDepth } from '../utils/IsoUtils'
 
 export class Infantry extends Phaser.GameObjects.GameObject {
-  x: number
-  y: number
+  x: number   // world 셀
+  y: number   // world 셀
   hp: number
   private gfx: Phaser.GameObjects.Graphics
   private dead = false
@@ -20,19 +18,20 @@ export class Infantry extends Phaser.GameObjects.GameObject {
     this.y = y
     this.hp = INFANTRY_HP
     this.gfx = scene.add.graphics()
-    this.gfx.setDepth(15)
+    this.gfx.setDepth(20 + isoDepth(x, y))
   }
 
   update(delta: number) {
     if (this.dead) return
 
-    // 기지(BASE_Y)를 향해 직진
     this.y += INFANTRY_SPEED * delta / 1000
+    this.gfx.setDepth(20 + isoDepth(this.x, this.y))
 
     if (this.y >= BASE_Y) {
       this.reachedBase = true
       this.dead = true
       this.gfx.clear()
+      return
     }
 
     this.draw()
@@ -42,25 +41,25 @@ export class Infantry extends Phaser.GameObjects.GameObject {
     this.gfx.clear()
 
     const hpRatio = this.hp / INFANTRY_HP
-    const bodyColor = Phaser.Display.Color.Interpolate.ColorWithColor(
+    const interpColor = Phaser.Display.Color.Interpolate.ColorWithColor(
       Phaser.Display.Color.ValueToColor(0xbb4444),
       Phaser.Display.Color.ValueToColor(COLOR.INFANTRY),
-      100, Math.floor(hpRatio * 100),
+      100,
+      Math.floor(hpRatio * 100),
     )
-    const color = Phaser.Display.Color.GetColor(bodyColor.r, bodyColor.g, bodyColor.b)
+    const topC  = Phaser.Display.Color.GetColor(interpColor.r, interpColor.g, interpColor.b)
+    const leftC = Phaser.Display.Color.ValueToColor(topC).darken(35).color
+    const rightC = Phaser.Display.Color.ValueToColor(topC).darken(18).color
 
-    // 보병 분대: 작은 사각형들
-    const offsets = [{ x: -6, y: 0 }, { x: 0, y: -4 }, { x: 6, y: 0 }, { x: 0, y: 4 }]
-    for (const off of offsets) {
-      this.gfx.fillStyle(color, 0.9)
-      this.gfx.fillRect(this.x + off.x - 3, this.y + off.y - 3, 6, 6)
-    }
+    const hw = 0.25
+    drawIsoBox(this.gfx, this.x - hw, this.y - hw, hw * 2, hw * 2, 10, topC, leftC, rightC)
 
-    // HP바
+    const { x: sx, y: sy } = w2s(this.x, this.y)
+    const barW = 20
     this.gfx.fillStyle(0x222222, 0.8)
-    this.gfx.fillRect(this.x - 14, this.y - 14, 28, 3)
+    this.gfx.fillRect(sx - barW / 2, sy - 18, barW, 3)
     this.gfx.fillStyle(hpRatio > 0.5 ? COLOR.HP_HIGH : COLOR.HP_LOW, 1)
-    this.gfx.fillRect(this.x - 14, this.y - 14, 28 * hpRatio, 3)
+    this.gfx.fillRect(sx - barW / 2, sy - 18, barW * hpRatio, 3)
   }
 
   takeDamage(amount: number) {
@@ -77,7 +76,7 @@ export class Infantry extends Phaser.GameObjects.GameObject {
   getSplashHitCheck(hitX: number, hitY: number, splashR: number): boolean {
     const dx = this.x - hitX
     const dy = this.y - hitY
-    return Math.sqrt(dx * dx + dy * dy) <= splashR + UNIT_SIZE
+    return Math.sqrt(dx * dx + dy * dy) <= splashR + 0.5
   }
 
   override destroy() {
